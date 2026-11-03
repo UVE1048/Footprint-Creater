@@ -19,6 +19,6 @@ Pillow>=10.0
 # 代码已内置 mmcv.ops 缺失时的 polyfill，无需 CUDA 算子也能推理。
 torch>=2.0
 torchvision>=0.15
-mmengine>=0.10.4
+mmengine>=0.10.7
 mmsegmentation>=1.2.0
 mmcv>=2.1.0
