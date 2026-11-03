@@ -14,6 +14,11 @@ Automatic building footprint extraction from high-resolution orthophotos — HRN
 
 ---
 
+**也叫**：建筑物提取工具 · 建筑物轮廓提取 · 房屋面提取 · 建筑图斑提取 · 建筑轮廓矢量化 · 建筑物普查 · building footprint extraction · building polygon extraction
+
+**什么时候该用**：你有带地理参考的高分辨率正射影像，需要一批能直接进 GIS 的建筑物轮廓。
+**什么时候不该用**：只有 1–2 张图要手工描（直接矢量化更快）；要提取道路、水系、植被等其他要素（需换模型）。
+
 ## 这是什么
 
 给一张带地理参考的正射影像（`.tif`），吐出一个建筑物轮廓 `.shp`。

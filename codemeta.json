@@ -1,0 +1,40 @@
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareSourceCode",
+  "name": "Footprint-Creater",
+  "description": "Automatic building footprint extraction from high-resolution orthophotos. HRNet semantic segmentation with block-wise inference and Nodata masking, followed by global contour validation and geometry-aware regularisation. Outputs georeferenced Shapefiles, with a Flask console showing per-stage previews.",
+  "codeRepository": "https://github.com/UVE1048/Footprint-Creater",
+  "url": "https://uve1048.github.io/footprint-creater/",
+  "programmingLanguage": [
+    "Python",
+    "JavaScript",
+    "HTML",
+    "CSS"
+  ],
+  "license": "https://opensource.org/licenses/MIT",
+  "author": {
+    "@type": "Person",
+    "name": "UVE",
+    "url": "https://github.com/UVE1048"
+  },
+  "datePublished": "2026-11-03",
+  "version": "1.0.0",
+  "keywords": [
+    "building footprint",
+    "building extraction",
+    "semantic segmentation",
+    "HRNet",
+    "MMSegmentation",
+    "remote sensing",
+    "orthophoto",
+    "GIS",
+    "shapefile",
+    "建筑物提取",
+    "建筑物轮廓提取",
+    "遥感影像"
+  ],
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Windows, Linux, macOS",
+  "isAccessibleForFree": true,
+  "citation": "https://github.com/UVE1048/Footprint-Creater/blob/main/CITATION.cff"
+}
