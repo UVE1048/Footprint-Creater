@@ -20,5 +20,5 @@ Pillow>=10.0
 torch>=2.0
 torchvision>=0.15
 mmengine>=0.10.4
-mmsegmentation>=1.2.0
+mmsegmentation>=1.2.2
 mmcv>=2.1.0
