@@ -5,6 +5,7 @@
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
 [![Stars](https://img.shields.io/github/stars/UVE1048/Footprint-Creater?style=social)](https://github.com/UVE1048/Footprint-Creater/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/UVE1048/Footprint-Creater)](https://github.com/UVE1048/Footprint-Creater/commits/main)
+[![CI](https://github.com/UVE1048/Footprint-Creater/actions/workflows/ci.yml/badge.svg)](https://github.com/UVE1048/Footprint-Creater/actions/workflows/ci.yml)
 
 **从高分辨率正射影像自动提取建筑物轮廓，直接输出可入库的 Shapefile。**
 
