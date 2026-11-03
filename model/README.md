@@ -25,6 +25,22 @@ python scripts/download_models.py --model w32
 python scripts/download_models.py --check
 ```
 
+## 从 Hugging Face 取
+
+权重也已发布到 Hub，含完整模型卡：
+
+| 模型 | 地址 |
+| :--- | :--- |
+| HRNet-W48 | <https://huggingface.co/Uve1048/hrnet-w48-footprint> |
+| HRNet-W32 | <https://huggingface.co/Uve1048/hrnet-w32-footprint> |
+
+```python
+from huggingface_hub import hf_hub_download
+path = hf_hub_download("Uve1048/hrnet-w48-footprint", "hrnet_w48_iter_6000.pth")
+```
+
+发布脚本：`python scripts/upload_to_hf.py`（W48）或 `--model w32`。
+
 ## SHA256
 
 ```text

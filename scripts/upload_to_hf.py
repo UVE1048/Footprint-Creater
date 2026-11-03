@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -29,14 +30,14 @@ ROOT = Path(__file__).resolve().parent.parent
 
 MODELS = {
     "w48": dict(
-        repo_id="UVE1048/hrnet-w48-footprint",
+        repo_name="hrnet-w48-footprint",
         local="hrnet_w48_iter_6000.pth",
         remote="hrnet_w48_iter_6000.pth",
         card="hf/hrnet-w48-footprint/README.md",
         url="https://github.com/UVE1048/Footprint-Creater/releases/download/models-v1/hrnet_w48_iter_6000.pth",
     ),
     "w32": dict(
-        repo_id="UVE1048/hrnet-w32-footprint",
+        repo_name="hrnet-w32-footprint",
         local="iter_40000.pth",
         remote="iter_40000.pth",
         card="hf/hrnet-w32-footprint/README.md",
@@ -45,29 +46,70 @@ MODELS = {
 }
 
 
-def ensure_weights(target: Path, url: str) -> None:
-    """Download from the GitHub release if the checkpoint is not present."""
-    if target.exists():
+def ensure_weights(target: Path, url: str, retries: int = 5) -> None:
+    """Download from the GitHub release if the checkpoint is not present.
+
+    GitHub release downloads do get truncated on flaky links, so this resumes
+    with HTTP Range requests instead of restarting a 500 MB transfer.
+    """
+    if target.exists() and target.stat().st_size > 0:
         print(f"  using local weights: {target} ({target.stat().st_size / 1e6:.0f} MB)")
         return
-    print(f"  local weights missing, downloading from GitHub Releases ...")
+
+    print("  local weights missing, downloading from GitHub Releases ...")
     tmp = target.with_suffix(target.suffix + ".part")
 
-    def _progress(blocks: int, block_size: int, total: int) -> None:
-        if total <= 0:
+    for attempt in range(1, retries + 1):
+        have = tmp.stat().st_size if tmp.exists() else 0
+        req = urllib.request.Request(url)
+        if have:
+            req.add_header("Range", f"bytes={have}-")
+            print(f"  resume at {have / 1e6:.1f} MB (attempt {attempt}/{retries})")
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                total = have + int(resp.headers.get("Content-Length") or 0)
+                mode = "ab" if have and resp.status == 206 else "wb"
+                if mode == "wb":
+                    have = 0
+                done = have
+                next_mark = 10
+                with open(tmp, mode) as fh:
+                    while True:
+                        chunk = resp.read(1024 * 1024)
+                        if not chunk:
+                            break
+                        fh.write(chunk)
+                        done += len(chunk)
+                        if total:
+                            pct = done * 100 / total
+                            if pct >= next_mark:
+                                print(f"    {pct:5.1f}%  {done / 1e6:.0f}/{total / 1e6:.0f} MB")
+                                next_mark += 10
+            size = tmp.stat().st_size
+            if total and size < total:
+                print(f"  ! incomplete: {size} of {total} bytes")
+                continue
+            tmp.replace(target)
+            print(f"  + saved to {target}")
             return
-        done = min(blocks * block_size, total)
-        sys.stdout.write(f"\r  {done / 1e6:7.1f}/{total / 1e6:.1f} MB")
-        sys.stdout.flush()
+        except Exception as exc:  # noqa: BLE001 - report and retry
+            print(f"  ! attempt {attempt} failed: {type(exc).__name__}: {exc}")
+            time.sleep(2 * attempt)
 
-    urllib.request.urlretrieve(url, tmp, reporthook=_progress)
-    print()
-    tmp.replace(target)
+    raise SystemExit(
+        f"Could not download weights after {retries} attempts.\n"
+        f"Download manually from:\n  {url}\nand place it at:\n  {target}"
+    )
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", choices=sorted(MODELS), default="w48")
+    parser.add_argument(
+        "--namespace",
+        default=None,
+        help="HF user or org that owns the repo. Defaults to the token's account.",
+    )
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -82,7 +124,18 @@ def main() -> int:
     weights = ROOT / "model" / spec["local"]
     card = ROOT / spec["card"]
 
-    print(f"Model     : {spec['repo_id']}")
+    # 命名空间必须与 token 所属账号一致，HF 用户名大小写可能与 GitHub 不同
+    namespace = args.namespace
+    if not namespace and token:
+        try:
+            from huggingface_hub import HfApi as _Api
+            namespace = _Api(token=token).whoami()["name"]
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! could not resolve HF account: {exc}")
+    namespace = namespace or "UVE1048"
+    repo_id = f"{namespace}/{spec['repo_name']}"
+
+    print(f"Repo      : {repo_id}")
     print(f"Card      : {card.relative_to(ROOT)}")
     print(f"Weights   : {weights.relative_to(ROOT)}")
     print(f"Dry run   : {args.dry_run}")
@@ -105,13 +158,13 @@ def main() -> int:
     from huggingface_hub import HfApi
 
     api = HfApi(token=token)
-    api.create_repo(repo_id=spec["repo_id"], repo_type="model", exist_ok=True)
+    api.create_repo(repo_id=repo_id, repo_type="model", exist_ok=True)
     print("  + repo ready")
 
     api.upload_file(
         path_or_fileobj=str(card),
         path_in_repo="README.md",
-        repo_id=spec["repo_id"],
+        repo_id=repo_id,
         commit_message="Add model card",
     )
     print("  + model card uploaded")
@@ -119,12 +172,12 @@ def main() -> int:
     api.upload_file(
         path_or_fileobj=str(weights),
         path_in_repo=spec["remote"],
-        repo_id=spec["repo_id"],
+        repo_id=repo_id,
         commit_message=f"Add {spec['remote']}",
     )
     print("  + weights uploaded")
 
-    print(f"\nDone: https://huggingface.co/{spec['repo_id']}")
+    print(f"\nDone: https://huggingface.co/{repo_id}")
     return 0
 
 

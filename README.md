@@ -6,6 +6,7 @@
 [![Stars](https://img.shields.io/github/stars/UVE1048/Footprint-Creater?style=social)](https://github.com/UVE1048/Footprint-Creater/stargazers)
 [![Last commit](https://img.shields.io/github/last-commit/UVE1048/Footprint-Creater)](https://github.com/UVE1048/Footprint-Creater/commits/main)
 [![CI](https://github.com/UVE1048/Footprint-Creater/actions/workflows/ci.yml/badge.svg)](https://github.com/UVE1048/Footprint-Creater/actions/workflows/ci.yml)
+[![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-models-yellow)](https://huggingface.co/Uve1048/hrnet-w48-footprint)
 
 **从高分辨率正射影像自动提取建筑物轮廓，直接输出可入库的 Shapefile。**
 
@@ -98,6 +99,26 @@ python scripts/download_models.py --check         # 校验完整性
 | :--- | :--- | :--- | :--- |
 | `iter_40000.pth` | HRNet-W32 + FCNHead | ~231 MB | 默认，速度快 |
 | `hrnet_w48_iter_6000.pth` | HRNet-W48 + FCNHead | ~542 MB | 精度更高，约 2× 耗时 |
+
+### Hugging Face
+
+两个权重也已发布到 Hugging Face，含完整模型卡（架构、用法、局限）：
+
+| 模型 | Hugging Face |
+| :--- | :--- |
+| HRNet-W48 | [Uve1048/hrnet-w48-footprint](https://huggingface.co/Uve1048/hrnet-w48-footprint) |
+| HRNet-W32 | [Uve1048/hrnet-w32-footprint](https://huggingface.co/Uve1048/hrnet-w32-footprint) |
+
+只需要权重、不需要后处理流水线时，直接从 Hub 拉更省事：
+
+```python
+from huggingface_hub import hf_hub_download
+
+path = hf_hub_download(
+    repo_id="Uve1048/hrnet-w48-footprint",
+    filename="hrnet_w48_iter_6000.pth",
+)
+```
 
 权重放在 `model/` 下即可。也可以用自己的数据训一份 —— 见 [HRNet-Footprint-Trainer](https://github.com/UVE1048/HRNet-Footprint-Trainer)。
 
