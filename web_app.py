@@ -21,7 +21,7 @@ from extract_buildings import BuildingExtractor, Config
 # Helper Functions
 # ==========================================
 def safe_filename(filename):
-    """
+    r"""
     Custom filename sanitizer that preserves non-ASCII characters (e.g. Chinese).
     Removes Windows invalid characters: < > : " / \ | ? *
     """
