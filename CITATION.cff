@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software in academic work, please cite it as below."
+type: software
+title: "Footprint-Creater"
+abstract: >-
+  Automatic building footprint extraction from high-resolution orthophotos.
+  HRNet semantic segmentation with block-wise inference and Nodata masking,
+  followed by geometry-aware post-processing (area filtering, hole filling,
+  mitre-join smoothing, Douglas-Peucker simplification, rectangularisation).
+  Outputs georeferenced Shapefiles. Includes a Flask console with per-stage
+  previews and pretrained HRNet-W32/W48 checkpoints.
+authors:
+  - family-names: "UVE"
+    alias: "UVE1048"
+    website: "https://github.com/UVE1048"
+repository-code: "https://github.com/UVE1048/Footprint-Creater"
+url: "https://github.com/UVE1048/Footprint-Creater"
+license: MIT
+date-released: "2026-11-03"
+keywords:
+  - building footprint
+  - building extraction
+  - building segmentation
+  - building detection
+  - semantic segmentation
+  - HRNet
+  - MMSegmentation
+  - remote sensing
+  - aerial imagery
+  - orthophoto
+  - GIS
+  - shapefile
+  - polygon regularization
+  - 建筑物轮廓提取
+  - 建筑物提取
+  - 正射影像
+  - 遥感影像
+  - 语义分割

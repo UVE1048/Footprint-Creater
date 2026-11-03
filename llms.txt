@@ -1,0 +1,62 @@
+# Footprint-Creater
+
+> Automatic building footprint extraction from high-resolution orthophotos. HRNet semantic segmentation with block-wise inference, geometry-aware post-processing, and a Flask console with per-stage previews. Outputs georeferenced Shapefiles.
+
+Given a georeferenced orthophoto (`.tif`), this project produces a building
+outline `.shp`. The pipeline is: block-wise AI inference, global mask merge,
+global contour validation, then regularisation. The last two steps are what
+separate it from "run a segmentation model and convert pixels to polygons":
+raw masks produce jagged edges, merged blobs, and slivers that are unusable in
+GIS without shape validation and geometry cleanup.
+
+Three design constraints drive the architecture: large images do not fit in GPU
+memory (hence 1024 px sliding windows with 50% overlap); stitching seams create
+false contours (hence validation happens globally, before simplification, not
+per tile); and orthophoto black borders are systematically misclassified as
+buildings (hence Nodata, vegetation, and shadow masks are applied before
+inference and enforced after it).
+
+## Entry points
+
+- `extract_buildings.py` - extraction core: model loading, block inference,
+  global validation, smoothing, simplification, shapefile export.
+- `web_app.py` - Flask console (routes, task scheduler, inline HTML/JS frontend).
+  Run with `python web_app.py`, serves on port 5000.
+- `scripts/download_models.py` - downloads pretrained weights from GitHub
+  Releases with SHA256 verification.
+- `docs/Algorithm_Logic.md` - detailed algorithm and parameter documentation.
+
+## Pretrained weights
+
+| File | Backbone | Size | Notes |
+| :--- | :--- | :--- | :--- |
+| `iter_40000.pth` | HRNet-W32 + FCNHead | ~231 MB | default, faster |
+| `hrnet_w48_iter_6000.pth` | HRNet-W48 + FCNHead | ~542 MB | higher quality, ~2x slower |
+
+Hosted as GitHub Release assets under tag `models-v1`, not in git.
+
+## Key parameters
+
+`BLOCK_SIZE` 1024, `BLOCK_OVERLAP` 512, `MIN_AREA_M2` 100.0,
+`BUFFER_EXPAND_M` 0.6, `BUFFER_SHRINK_M` 0.3, `SIMPLIFY_TOL` 0.3,
+`RECT_IOU_THRESH` 0.90.
+
+## Docs
+
+- [README](https://github.com/UVE1048/Footprint-Creater/blob/main/README.md): features, pipeline rationale, parameters, comparison with alternatives.
+- [Algorithm logic](https://github.com/UVE1048/Footprint-Creater/blob/main/docs/Algorithm_Logic.md): step-by-step algorithm and debug outputs.
+- [Model weights](https://github.com/UVE1048/Footprint-Creater/blob/main/model/README.md): checkpoints and checksums.
+
+## Keywords
+
+building footprint, building extraction, building segmentation, building
+detection, semantic segmentation, HRNet, MMSegmentation, remote sensing, aerial
+imagery, orthophoto, GIS, shapefile, polygon regularization, Douglas-Peucker,
+rectangularisation, OpenStreetMap buildings, 3D building reconstruction,
+建筑物轮廓提取, 建筑物提取, 房屋面提取, 正射影像, 遥感影像
+
+## License
+
+MIT, including the released pretrained weights. Built on MMSegmentation
+(Apache-2.0). Other dependencies: PyTorch BSD-3, rasterio BSD-3, GeoPandas BSD-3,
+Shapely BSD-3, Flask BSD-3, OpenCV Apache-2.0.
