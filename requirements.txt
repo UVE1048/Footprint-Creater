@@ -1,0 +1,24 @@
+# ---- Web 控制台 ----
+flask>=3.0
+werkzeug>=3.0
+
+# ---- 地理空间 ----
+rasterio>=1.3.9
+shapely>=2.0
+geopandas>=0.14
+
+# ---- 数值 / 图像 ----
+numpy>=1.24,<2.2
+scipy>=1.10
+opencv-python>=4.8
+Pillow>=10.0
+
+# ---- 深度学习与分割框架 ----
+# 注意：mmsegmentation 1.x 依赖 mmcv 2.x。CPU / 无编译环境可用 mmcv-lite 替代：
+#   pip install mmcv-lite>=2.1.0
+# 代码已内置 mmcv.ops 缺失时的 polyfill，无需 CUDA 算子也能推理。
+torch>=2.0
+torchvision>=0.15
+mmengine>=0.10.4
+mmsegmentation>=1.2.0
+mmcv>=2.1.0
